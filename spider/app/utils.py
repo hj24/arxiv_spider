@@ -1,5 +1,8 @@
 import threading
+import logging.config
 from functools import wraps
+
+from spider.app.config import log
 
 
 def singleton(cls):
@@ -14,3 +17,12 @@ def singleton(cls):
                     _instance[cls] = cls(*args, **kwargs)
         return _instance[cls]
     return instance
+
+
+logging.config.dictConfig(log.config)
+
+def get_logger(name):
+    if isinstance(name, str):
+        return logging.getLogger(name)
+    else:
+        raise TypeError
