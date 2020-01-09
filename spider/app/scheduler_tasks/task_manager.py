@@ -41,6 +41,20 @@ class Manager:
         finally:
             return flag
 
+    def add_cron_job_per_week(self, job_id, desc, func, args, d_of_w, hour, min):
+        """
+        添加corn类型的定时任务
+        """
+        try:
+            self._scheduler.add_job(func=func, trigger='cron', id=job_id,
+                                    name=desc, args=args, day_of_week=d_of_w,
+                                    hour=hour, minute=min)
+        except Exception as e:
+            logger.error('add job %s failed: %s', str(job_id), e)
+            return False
+        else:
+            return True
+
     def stop_job(self, job_id):
         """
         通过job id来关闭某个定时任务
@@ -59,7 +73,16 @@ class Manager:
         else:
             return True
 
-    def show_jobs(self):
+    def modify_job(self, job_id, **kwargs):
+        try:
+            self._scheduler.modify_job(job_id=job_id, **kwargs)
+        except Exception as e:
+            logger.error('modify failed: %s', e)
+            return False
+        else:
+            return True
+
+    def get_jobs(self):
         return self._scheduler.get_jobs()
 
     def run(self):
@@ -87,15 +110,23 @@ class Manager:
             return True
 
 if __name__ == '__main__':
+    """
+    task manager simple test
+    """
     import time
     m = Manager()
+
     def t():
         print('1234')
         time.sleep(1)
+
+    def t2():
+        print('123456')
+        time.sleep(1)
+
     m.add_interval_job('t', 'test t', t, args=[], interval=10)
+    m.add_cron_job_per_week('t2', 'test t2', t2, args=[], d_of_w='thu', hour=23, min=12)
+    m.modify_job('t', next_run_time=1)
     m.run()
 
-    s = m.show_jobs()
-    for i in s:
-        print(i)
-    time.sleep(100)
+    time.sleep(300)
