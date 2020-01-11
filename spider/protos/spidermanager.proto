@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package spider;
+
+// The spider service definition.
+service Spider {
+  // Control the start and stop of the spider
+  rpc SpiderConn (ConnRequest) returns (ConnReply) {}
+  // Show apscheduler jobs and control them
+  rpc TasksList (ListRequest) returns (ListReply) {}
+}
+
+// complex list message
+message JobList {
+  string jobid;
+  string details;
+}
+
+// The request message.
+message ConnRequest {
+  string switch = 1;
+}
+
+message ListRequest {
+  string query = 1;
+}
+
+// The response message.
+message HelloReply {
+  string status = 1;
+  string message = 2;
+}
+
+message ListReply {
+  string status = 1;
+  repeated JobList jl = 2;
+}
