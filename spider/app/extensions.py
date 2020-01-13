@@ -1,8 +1,13 @@
+import redis
+from peeweext.sea import Peeweext
 from sea.contrib.extensions.celery import AsyncTask
+
+
+# celery异步任务插件，本项目暂未启用
 async_task = AsyncTask()
 
-import redis
-
+# peewee插件
+pwdb = Peeweext(ns='PW_')
 
 # 定义redis插件
 class Redis:

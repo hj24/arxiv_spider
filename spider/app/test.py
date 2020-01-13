@@ -1,20 +1,16 @@
 from app.extensions import Redis
 
+from sea import create_app
+
 if __name__ == '__main__':
     import os
-    from app import App
-    from spider.configs import development
 
-    cfg = development
     root_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    create_app(root_path)
 
+    from app.extensions import pwdb
+    from app.model import SpConfiguration as spc
 
-    app = App(root_path, env="development")
-    app.config.from_object(cfg)
-
-    print(app.config.get_namespace('REDIS_'))
-
-    r = Redis()
-    r.init_app(app)
-
-    r.set('name', 'hj')
+    print(pwdb.database.get_tables())
+    r = spc.select().where(spc.interval==1).get()
+    print(r)
