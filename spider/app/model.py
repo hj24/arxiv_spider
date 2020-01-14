@@ -1,8 +1,8 @@
 import peewee
 import pendulum
+from peeweext.fields import DatetimeTZField
 
 from app.extensions import pwdb
-from peeweext.fields import DatetimeTZField
 
 
 class ProxyConfiguration(pwdb.Model):
@@ -35,3 +35,22 @@ class SpConfiguration(pwdb.Model):
 
     class Meta:
         table_name = 'sp_configuration'
+
+class Article(pwdb.Model):
+    """
+    文章模型，用于存储爬取的文章
+    """
+    author = peewee.CharField(max_length=80)
+    title = peewee.CharField(max_length=100)
+    subject = peewee.CharField(max_length=60)
+    arx_url = peewee.CharField(max_length=150)
+    pdf_url = peewee.CharField(max_length=150)
+    expr = peewee.CharField(max_length=200)
+    content = peewee.TextField()
+    fav_num = peewee.IntegerField()
+    downloaded = peewee.BooleanField()
+    created_at = peewee.DateTimeField(default=pendulum.now)
+    updated_at = peewee.DateTimeField(default=pendulum.now)
+
+    class Meta:
+        table_name = 'fb_article'

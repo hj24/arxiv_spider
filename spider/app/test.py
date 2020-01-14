@@ -1,11 +1,15 @@
-from app.extensions import Redis
-
+from sea import current_app
+from app.extensions import spredis
 from sea import create_app
+
+
 
 if __name__ == '__main__':
     import os
 
-    root_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    print(os.environ.get('SEA_ENV'))
+
+    root_path = os.path.abspath(os.path.dirname(__file__))
     create_app(root_path)
 
     from app.extensions import pwdb
@@ -13,4 +17,9 @@ if __name__ == '__main__':
 
     print(pwdb.database.get_tables())
     r = spc.select().where(spc.interval==1).get()
-    print(r)
+    current_app.logger.info(r)
+    current_app.logger.error(r)
+
+    spredis.set('name', 'hj')
+
+    print(spredis.get('name'))
