@@ -23,3 +23,7 @@ if __name__ == '__main__':
     spredis.set('name', 'hj')
 
     print(spredis.get('name'))
+
+    from app.settings import SpiderConfig
+
+    print(SpiderConfig.count())

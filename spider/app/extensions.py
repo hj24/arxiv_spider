@@ -1,11 +1,20 @@
 from gevent import monkey
 monkey.patch_all()
+
 import redis
 from apscheduler.schedulers.gevent import GeventScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from peeweext.sea import Peeweext
 # from sea.contrib.extensions.celery import AsyncTask
 
+
+config2scheduler = {
+    'gevent': GeventScheduler,
+    'blocking': BlockingScheduler,
+    'background': BackgroundScheduler,
+}
 
 # 编写扩展
 ## 定义redis插件
@@ -23,24 +32,69 @@ class Redis:
         return getattr(self._client, name)
 
 ## 定义apscheduler扩展
-class Apscheduler:
-    """
-    desc: 定时任务管理模块
-    """
+class TasksManager:
+
     def __init__(self):
         self._scheduler = None
         self._job_list = []
 
     def init_app(self, app):
-        self._scheduler = GeventScheduler
+        opts = app.config.get_namespace('APS_')
+        sch = opts.get('scheduler', GeventScheduler)
+        self._scheduler = config2scheduler[sch]()
+
+    def __getattr__(self, item):
+        return getattr(self._scheduler, item)
+
+    def add_cron_job_per_week(self, job_id, desc, func, args, d_of_w, hour, min):
+        """
+        添加corn类型的定时任务
+        """
+        try:
+            self._scheduler.add_job(func=func, trigger='cron', id=job_id,
+                                    name=desc, args=args, day_of_week=d_of_w,
+                                    hour=hour, minute=min)
+        except Exception as e:
+            raise e
+        else:
+            self._job_list.append({'job_id': job_id, 'desc': desc})
+
+    def add_job(self, job_id, desc, func, date, args):
+        """
+        添加一次性的定时任务，在run_date指定的时间运行
+        """
+        try:
+            self._scheduler.add_job(func=func, trigger='date', id=job_id,
+                                    name=desc, args=args, run_date=date)
+        except Exception as e:
+            raise e
+        else:
+            self._job_list.append({'job_id': job_id, 'desc': desc})
+
+    def stop_job(self, job_id):
+        """
+        通过job id来关闭某个定时任务
+        """
+        try:
+            for job in self._job_list:
+                if job['job_id'] == job_id:
+                    self._scheduler.remove_job(job_id)
+                    self._job_list.remove(job)
+                    break
+        except Exception as e:
+            raise e
 
 
 # 使用扩展
-## sea内置的celery异步任务插件，本项目暂未启用
+## sea内置的celery异步任务扩展
 # async_task = AsyncTask()
+# bus = Bus()
 
 ## peewee插件
 pwdb = Peeweext(ns='PW_')
 
 ## redis插件
 spredis = Redis()
+
+## 定时任务扩展
+tasker = TasksManager()

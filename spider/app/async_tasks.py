@@ -1,1 +1,1 @@
-from app.extensions import async_task
+# from app.extensions import async_task
