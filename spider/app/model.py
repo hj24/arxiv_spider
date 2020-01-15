@@ -1,5 +1,6 @@
 import peewee
 import pendulum
+from peeweext.fields import JSONCharField
 from peeweext.fields import DatetimeTZField
 
 from app.extensions import pwdb
@@ -35,6 +36,21 @@ class SpConfiguration(pwdb.Model):
 
     class Meta:
         table_name = 'sp_configuration'
+
+class Api(pwdb.Model):
+    """
+    爬出需要的母api表，根据爬取它的结果生成子api
+    """
+    url = peewee.CharField(max_length=100)
+    payload = JSONCharField(max_length=300)
+    apitype = peewee.IntegerField()
+    accesstype = peewee.IntegerField()
+    deleted = peewee.BooleanField()
+    created_at = peewee.DateTimeField(default=pendulum.now)
+    updated_at = peewee.DateTimeField(default=pendulum.now)
+
+    class Meta:
+        table_name = 'sp_apilist'
 
 class Article(pwdb.Model):
     """
