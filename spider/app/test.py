@@ -27,3 +27,7 @@ if __name__ == '__main__':
     from app.settings import SpiderConfig
 
     print(SpiderConfig.count())
+
+    from app.spider.crawler import SpiderMan
+
+    print(SpiderMan.generate_url())

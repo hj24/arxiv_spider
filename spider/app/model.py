@@ -42,6 +42,8 @@ class Api(pwdb.Model):
     爬出需要的母api表，根据爬取它的结果生成子api
     """
     url = peewee.CharField(max_length=100)
+    subject = peewee.CharField(max_length=20)
+    headers = JSONCharField(max_length=500)
     payload = JSONCharField(max_length=300)
     apitype = peewee.IntegerField()
     accesstype = peewee.IntegerField()
