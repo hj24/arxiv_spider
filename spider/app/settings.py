@@ -9,7 +9,8 @@ class SpiderProxy:
         """
         从数据库根据 id 动态读取proxy
         """
-        self.proxy_item = proxyc.select().where(proxyc.id == idx).get()
+        self.proxy_item = proxyc.select().where(proxyc.id == idx,
+                                                proxyc.deleted == False).get()
 
     @property
     def proxy_host(self):

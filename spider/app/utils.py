@@ -1,11 +1,6 @@
 import threading
-import logging.config
 from functools import wraps
 
-from spider.app.config import log
-
-
-logging.config.dictConfig(log.config)
 
 def singleton(cls):
     _instance = {}
@@ -19,8 +14,11 @@ def singleton(cls):
         return _instance[cls]
     return instance
 
-def get_logger(name):
-    if isinstance(name, str):
-        return logging.getLogger(name)
-    else:
-        raise TypeError
+def clear_str(strings):
+    """
+    删除字符串的多余换行，制表符，空格
+    """
+    remove_n = strings.replace('\n', '')
+    remove_r = remove_n.replace('\r', '')
+    remove_t = remove_r.replace('\t', '')
+    return remove_t.strip()

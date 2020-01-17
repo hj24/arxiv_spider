@@ -5,13 +5,46 @@ import requests
 from app.model import Api
 
 from app.spider.utils import PAGNUMPAT
+from app.settings import SpiderProxy
 
 
 class SpiderMan:
 
-    def __init__(self):
-        pass
+    def __init__(self, url_item):
+        self._sess = requests.session()
+        self._url = url_item['url']
+        self._subject = url_item['subject']
+        self._headers = url_item['headers']
 
+    def download_page(self, prxoy):
+        """
+        有代理用代理，没代理用本地ip爬取
+
+        :param prxoy: 从make_proxies的结果中随机抽取一个传入
+        :return: 状态, 爬取结果
+        """
+        try:
+            response = self._sess.get(self._url,
+                                      headers=self._headers, proxies=prxoy)
+            response.encoding = 'utf-8'
+        except Exception:
+            try:
+                response = self._sess.get(self._url, headers=self._headers)
+                response.encoding = 'utf-8'
+            except Exception:
+                return False, None
+            else:
+                if response.status_code == 200:
+                    res_dict = {'subject': self._subject, 'content': response.text}
+                    return True, res_dict
+                else:
+                    return False, None
+        else:
+            if response.status_code == 200:
+                res_dict = {'subject': self._subject, 'content': response.text}
+                return True, res_dict
+            else:
+                return False, None
 
     @staticmethod
     def _try_get_page_nums(url, headers=None):
@@ -29,11 +62,11 @@ class SpiderMan:
             return per, tot
 
     @staticmethod
-    def _gen_api(url, subj, per, tot):
+    def _gen_api(url, subj, per, tot, headers=None):
         tot_sub = tot // per if tot % per == 0 else tot // per + 1
         urls = []
         for subfix in range(tot_sub):
-            urls.append({'subject': subj,
+            urls.append({'subject': subj, 'headers': headers,
                          'url': url + '&start=' + str(subfix * per)})
         return urls
 
@@ -43,12 +76,35 @@ class SpiderMan:
             generated = []
             for api in Api.select().where(Api.deleted == False):
                 per, tot = SpiderMan._try_get_page_nums(api.url, api.headers)
-                generated.extend(SpiderMan._gen_api(api.url, api.subject,
-                                                    int(per), int(tot)))
+                generated.extend(SpiderMan._gen_api(api.url, api.subject, int(per),
+                                                    int(tot), headers=api.headers))
         except Exception:
             return []
         else:
             return generated
+
+    @staticmethod
+    def make_porxies():
+        try:
+            proxies = []
+            cnt = SpiderProxy.count()
+            for i in range(1, cnt + 1):
+                proxy = SpiderProxy(i)
+                host = proxy.proxy_host
+                port = proxy.proxy_port
+                user = proxy.proxy_user
+                pwd = proxy.proxy_pwd
+                proxy_meta = "http://%(user)s:%(pass)s@%(host)s:%(port)s" % {
+                    "host": host,
+                    "port": port,
+                    "user": user,
+                    "pass": pwd,
+                }
+                proxies.append({"http": proxy_meta, "https": proxy_meta})
+        except Exception:
+            return []
+        else:
+            return proxies
 
 
 if __name__ == '__main__':
