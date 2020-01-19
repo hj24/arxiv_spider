@@ -1,8 +1,7 @@
-import re
-
 from bs4 import BeautifulSoup
 
 from app.spider.utils import (TITLE, ARXURL, PDFURL)
+from app.utils import clear_str
 
 
 class PageParser:
@@ -26,32 +25,71 @@ class PageParser:
         for tag in self._tags:
             str_tag = str(tag)
             parsed = {
-                'title': self._parse_title(str_tag),
-                'arxurl': self._parse_arxurl(str_tag),
-                'pdfurl': self._parse_pdfurl(str_tag),
-                'author': self._parse_authors(str_tag),
-                'expr': self._parse_expr(str_tag),
-                'content': self._parse_content(str_tag),
+                'title': self.parse_title(str_tag),
+                'arxurl': self.parse_arxurl(str_tag),
+                'pdfurl': self.parse_pdfurl(str_tag),
+                'author': self.parse_authors(),
+                'expr': self.parse_expr(0.5),
+                'content': self.parse_content(),
                 'subject': self._subj
             }
             yield parsed
 
-    def _parse_title(self, content):
-        pass
+    def _parse_by_re(self, content, _pattern):
+        try:
+            res = _pattern.search(content)
+            res_tuple = res.groups()
+        except Exception:
+            return None
+        else:
+            return res_tuple[0]
 
-    def _parse_arxurl(self, content):
-        pass
+    def parse_title(self, content):
+        return self._parse_by_re(content, TITLE)
 
-    def _parse_pdfurl(self, content):
-        pass
+    def parse_arxurl(self, content):
+        return self._parse_by_re(content, ARXURL)
 
-    def _parse_authors(self, content):
-        pass
+    def parse_pdfurl(self, content):
+        return self._parse_by_re(content, PDFURL)
 
-    def _parse_expr(self, content):
-        pass
+    def parse_authors(self):
+        try:
+            authors = self._soup.find('p', class_='authors')
+            author_list = []
+            for ch in authors.children:
+                author_list.append(clear_str(ch.string))
+            str_author = clear_str(' '.join(author_list))
+        except Exception:
+            return None
+        else:
+            return str_author
 
-    def _parse_content(self, content):
-        pass
+    def parse_expr(self, percent):
+        _full = self.parse_content()
+        nums = len(_full) * int(percent)
+        if not _full:
+            return None
+        else:
+            return self.parse_content()[:nums]
+
+    def parse_content(self):
+        try:
+            contents = self._soup.find('p', class_='abstract mathjax')
+            content_list = []
+            for c in contents:
+                if not str(c).strip().startswith('<a'):
+                    if hasattr(c, 'text'):
+                        content_list.append(c.text)
+                    else:
+                        content_list.append(str(c))
+            parsed = ''.join(content_list).strip()
+        except Exception:
+            return None
+        else:
+            return parsed
 
 
+if __name__ == '__main__':
+    from tests.test_parser import single_tag
+    print(PageParser(single_tag, '').parse_authors())
