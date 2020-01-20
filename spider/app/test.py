@@ -28,6 +28,10 @@ if __name__ == '__main__':
 
     print(SpiderConfig.count())
 
-    from app.spider.crawler import SpiderMan
+    # from app.spider.crawler import SpiderMan
+    #
+    # print(SpiderMan.generate_url())
+    from app.model import Article
 
-    print(SpiderMan.generate_url())
+    print(dir(Article))
+    print(dir(pwdb))

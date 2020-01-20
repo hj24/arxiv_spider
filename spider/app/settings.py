@@ -30,12 +30,13 @@ class SpiderProxy:
 
     @classmethod
     def count(cls):
-        return proxyc.select().get()
+        return proxyc.select().count()
 
 class SpiderConfig:
 
     def __init__(self, idx):
-        self.sp_item = spc.select().where(spc.id == idx).get()
+        self.sp_item = spc.select().where(spc.id == idx,
+                                          spc.deleted == False).get()
 
     @property
     def headers(self):
@@ -55,4 +56,4 @@ class SpiderConfig:
 
     @classmethod
     def count(cls):
-        return spc.select().get()
+        return spc.select().count()

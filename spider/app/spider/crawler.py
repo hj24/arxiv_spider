@@ -16,20 +16,21 @@ class SpiderMan:
         self._subject = url_item['subject']
         self._headers = url_item['headers']
 
-    def download_page(self, prxoy):
+    def download_page(self, prxoy, headers=None, timeout=60):
         """
-        有代理用代理，没代理用本地ip爬取
+        有代理用代理，没代理用本地ip爬取,有请求头就用，没有就用url_item里的
 
         :param prxoy: 从make_proxies的结果中随机抽取一个传入
         :return: 状态, 爬取结果
         """
+        h = self._headers if not headers else headers
         try:
-            response = self._sess.get(self._url,
-                                      headers=self._headers, proxies=prxoy)
+            response = self._sess.get(self._url, headers=h,
+                                      proxies=prxoy, timeout=timeout)
             response.encoding = 'utf-8'
         except Exception:
             try:
-                response = self._sess.get(self._url, headers=self._headers)
+                response = self._sess.get(self._url, headers=h, timeout=timeout)
                 response.encoding = 'utf-8'
             except Exception:
                 return False, None
