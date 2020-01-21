@@ -26,8 +26,8 @@ class PageParser:
             str_tag = str(tag)
             parsed = {
                 'title': self.parse_title(str_tag),
-                'arxurl': self.parse_arxurl(str_tag),
-                'pdfurl': self.parse_pdfurl(str_tag),
+                'arx_url': self.parse_arxurl(str_tag),
+                'pdf_url': self.parse_pdfurl(str_tag),
                 'author': self.parse_authors(),
                 'expr': self.parse_expr(0.5),
                 'content': self.parse_content(),
