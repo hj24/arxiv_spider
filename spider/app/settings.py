@@ -47,10 +47,6 @@ class SpiderConfig:
         return self.sp_item.sleep
 
     @property
-    def interval(self):
-        return self.sp_item.interval
-
-    @property
     def timeout(self):
         return self.sp_item.timeout
 

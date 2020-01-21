@@ -26,9 +26,8 @@ class SpConfiguration(pwdb.Model):
     """
     爬虫配置表
     """
-    sleep = peewee.CharField(max_length=10)
-    interval = peewee.CharField(max_length=10)
-    headers = peewee.TextField()
+    sleep = peewee.FloatField()
+    headers = JSONCharField(max_length=500)
     timeout = peewee.IntegerField()
     deleted = peewee.BooleanField()
     created_at = peewee.DateTimeField(default=pendulum.now)
