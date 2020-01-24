@@ -14,6 +14,12 @@ class PageParser:
         self._content = html
         self._subj = subject
 
+    def _single_soup(self, content):
+        """
+        把全文分成一块一块的标签，针对单个标签生成的soup对象
+        """
+        return BeautifulSoup(content, "html.parser")
+
     def _parse_tag_by_class(self, tag_name, tag_class):
         try:
             self._tags = [tag for tag in self._soup.find_all(tag_name, class_=tag_class)]
@@ -24,13 +30,14 @@ class PageParser:
         self._parse_tag_by_class('li', 'arxiv-result')
         for tag in self._tags:
             str_tag = str(tag)
+            _full_content = self.parse_content(str_tag)
             parsed = {
                 'title': self.parse_title(str_tag),
                 'arx_url': self.parse_arxurl(str_tag),
                 'pdf_url': self.parse_pdfurl(str_tag),
-                'author': self.parse_authors(),
-                'expr': self.parse_expr(0.5),
-                'content': self.parse_content(),
+                'author': self.parse_authors(str_tag),
+                'expr': self.parse_expr(0.5, _full_content),
+                'content': _full_content,
                 'subject': self._subj
             }
             yield parsed
@@ -53,9 +60,10 @@ class PageParser:
     def parse_pdfurl(self, content):
         return self._parse_by_re(content, PDFURL)
 
-    def parse_authors(self):
+    def parse_authors(self, tag):
         try:
-            authors = self._soup.find('p', class_='authors')
+            author_soup = self._single_soup(tag)
+            authors = author_soup.find('p', class_='authors')
             author_list = []
             for ch in authors.children:
                 author_list.append(clear_str(ch.string))
@@ -65,17 +73,17 @@ class PageParser:
         else:
             return str_author
 
-    def parse_expr(self, percent):
-        _full = self.parse_content()
-        nums = len(_full) * int(percent)
-        if not _full:
+    def parse_expr(self, percent, full):
+        nums = int(len(full) * percent)
+        if not full:
             return None
         else:
-            return self.parse_content()[:nums]
+            return full[:nums]
 
-    def parse_content(self):
+    def parse_content(self, tag):
         try:
-            contents = self._soup.find('p', class_='abstract mathjax')
+            cont_soup = self._single_soup(tag)
+            contents = cont_soup.find('p', class_='abstract mathjax')
             content_list = []
             for c in contents:
                 if not str(c).strip().startswith('<a'):
@@ -91,5 +99,13 @@ class PageParser:
 
 
 if __name__ == '__main__':
-    from tests.test_parser import single_tag
-    print(PageParser(single_tag, '').parse_authors())
+    """
+    simple test
+    """
+    from tests.common import read_html
+    html_path = '/Users/macbook/PycharmProjects/arxiv_spider/spider/tests/arxiv.html'
+    html = read_html(html_path)
+    parser = PageParser(html, 'forestry')
+
+    for tag in parser.parser_page():
+        print(tag)
