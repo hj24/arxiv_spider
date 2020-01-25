@@ -1,3 +1,4 @@
+import pendulum
 from peewee import chunked
 
 from app.extensions import pwdb
@@ -14,16 +15,21 @@ class Saver:
 
     def save_one(self, **kwargs):
         try:
-            with self._db.atomic():
-                self._mod.insert(**kwargs).execute()
+            with self._db.database.atomic():
+                ret = (self._mod
+                            .insert(**kwargs)
+                            .on_conflict(
+                                conflict_target=[self._mod.title],
+                                update={self._mod.updated_at: pendulum.now()})
+                            .execute())
         except Exception:
-            return False
+            return -1
         else:
-            return True
+            return ret
 
     def save_many(self, source, batch=False, size=999):
         try:
-            with self._db.atomic():
+            with self._db.database.atomic():
                 if not batch:
                     self._mod.insert_many(source).execute()
                 else:
@@ -33,6 +39,15 @@ class Saver:
             return False
         else:
             return True
+
+    def delete_by_id(self, id):
+        try:
+            with self._db.database.atomic():
+                idx = self._mod.delete().where(self._mod.id == id).execute()
+        except Exception:
+            return -1
+        else:
+            return idx
 
     def __getattr__(self, item):
         return getattr(self._mod, item)
