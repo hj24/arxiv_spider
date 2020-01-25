@@ -14,11 +14,10 @@ from app.settings import SpiderConfig
 
 class Engine:
     """
-    爬虫主调度器
+    爬虫主调度器, 生产者消费者模型
     """
     def __init__(self):
-        self.spider_que = JoinableQueue()
-        self.parser_que = JoinableQueue()
+        self.que = JoinableQueue()
 
     @staticmethod
     def make_spider_config():
@@ -30,7 +29,6 @@ class Engine:
                 spc = SpiderConfig(i)
                 cfg = {
                     'sleep': spc.sleep,
-                    'interval': spc.interval,
                     'timeout': spc.timeout,
                     'headers': spc.headers
                 }
@@ -44,11 +42,13 @@ class Engine:
         idx = randint(0, len(item_list) - 1)
         return item_list[idx]
 
-    def spider_producer(self):
-        urls = SpiderMan.generate_url()
+    def producer(self):
         proxies = SpiderMan.make_porxies()
-        cfgs = Engine.make_spider_config()
+        _proxy = self._load_random_item(proxies)
 
+        urls = SpiderMan.generate_url(_proxy)
+
+        cfgs = Engine.make_spider_config()
         _cfgs = cfgs if cfgs else None
 
         for url in urls:
@@ -61,34 +61,30 @@ class Engine:
                     status, item = SpiderMan(url).download_page(_proxy, headers=_cfg['headers'],
                                                                 timeout=_cfg['timeout'])
                     gevent.sleep(_cfg['sleep'])
-                if status:
-                    self.spider_que.put(item)
 
-    def spider_consumer(self):
+                self.que.put(item)
+
+    def consumer(self):
+        # 消费者：从队列中取出item，是一个dict
         while True:
-            item = self.spider_que.get()
+            item = self.que.get()
             try:
                 p = PageParser(item['content'], item['subject'])
                 for res in p.parser_page():
-                    self.parser_que.put(res)
+                    print('consumer: ', res)
+                    Saver().save_one(**res)
+            except Exception as e:
+                print('consumer', e)
             finally:
-                self.spider_que.task_done()
-
-    def parser_consumer(self):
-        while True:
-            item = self.parser_que.get()
-            try:
-                Saver().save_one(**item)
-            finally:
-                self.parser_que.task_done()
+                self.que.task_done()
 
     def loop(self):
         try:
-            sp = gevent.spawn(self.spider_producer)
-            sc = gevent.spawn(self.spider_consumer)
-            pc = gevent.spawn(self.parser_consumer)
-            gevent.joinall([sp, sc, pc])
-        except Exception:
+            self.producer()
+            pc = gevent.spawn(self.consumer)
+            self.que.join()
+        except Exception as e:
+            print('******', e)
             return False
         else:
             return True

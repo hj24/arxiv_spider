@@ -1,7 +1,6 @@
-from gevent import monkey
-monkey.patch_all()
-
 import requests
+from requests.exceptions import ProxyError
+
 from app.model import Api
 
 from app.spider.utils import PAGNUMPAT
@@ -28,11 +27,12 @@ class SpiderMan:
             response = self._sess.get(self._url, headers=h,
                                       proxies=prxoy, timeout=timeout)
             response.encoding = 'utf-8'
-        except Exception:
+        except Exception as e:
             try:
                 response = self._sess.get(self._url, headers=h, timeout=timeout)
                 response.encoding = 'utf-8'
-            except Exception:
+            except Exception as e:
+                print(e)
                 return False, None
             else:
                 if response.status_code == 200:
@@ -48,16 +48,28 @@ class SpiderMan:
                 return False, None
 
     @staticmethod
-    def _try_get_page_nums(url, headers=None):
+    def _try_get_page_nums(url, headers=None, proxy=None):
         """
         根据数据库中母url获取页面的总数
         总数一半在页面的最前面，所以截取获取的前10000个字符，提高正则匹配效率
         """
         try:
-            resp = requests.get(url, headers=headers)
+            if not proxy:
+                raise Exception('no proxy found')
+            resp = requests.get(url, headers=headers, timeout=10, proxies=proxy)
             result = PAGNUMPAT.search(resp.text[:10000])
             per, tot = result.groups()
-        except Exception:
+        except ProxyError:
+            try:
+                resp = requests.get(url, headers=headers, timeout=10)
+                result = PAGNUMPAT.search(resp.text[:10000])
+                per, tot = result.groups()
+            except Exception:
+                return 1, 1
+            else:
+                return per, tot
+        except Exception as e:
+            print('&&&&&&&&', e)
             return 1, 1
         else:
             return per, tot
@@ -72,11 +84,11 @@ class SpiderMan:
         return urls
 
     @staticmethod
-    def generate_url():
+    def generate_url(proxy):
         try:
             generated = []
             for api in Api.select().where(Api.deleted == False):
-                per, tot = SpiderMan._try_get_page_nums(api.url, api.headers)
+                per, tot = SpiderMan._try_get_page_nums(api.url, api.headers, proxy)
                 generated.extend(SpiderMan._gen_api(api.url, api.subject, int(per),
                                                     int(tot), headers=api.headers))
         except Exception:
