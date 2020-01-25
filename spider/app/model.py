@@ -57,12 +57,12 @@ class Article(pwdb.Model):
     """
     文章模型，用于存储爬取的文章
     """
-    author = peewee.CharField(max_length=80)
+    author = peewee.CharField(max_length=200)
     title = peewee.CharField(max_length=100)
     subject = peewee.CharField(max_length=60)
     arx_url = peewee.CharField(max_length=150)
     pdf_url = peewee.CharField(max_length=150)
-    expr = peewee.CharField(max_length=200)
+    expr = peewee.TextField()
     content = peewee.TextField()
     fav_num = peewee.IntegerField()
     downloaded = peewee.BooleanField()
