@@ -40,7 +40,7 @@ class TasksManager:
 
     def init_app(self, app):
         opts = app.config.get_namespace('APS_')
-        sch = opts.get('scheduler', GeventScheduler)
+        sch = opts.get('scheduler', 'gevent')
         self._scheduler = config2scheduler[sch]()
 
     def __getattr__(self, item):

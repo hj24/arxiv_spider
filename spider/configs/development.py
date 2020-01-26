@@ -1,6 +1,8 @@
 from configs.default import *
 
 GRPC_LOG_LEVEL = 'INFO'
+DEBUG = True
+GRPC_PORT = 9001
 
 # Redis相关配置
 REDIS_HOST = 'localhost'
