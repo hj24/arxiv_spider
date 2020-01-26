@@ -12,13 +12,13 @@ service Spider {
 
 // complex list message
 message JobList {
-  string jobid;
-  string details;
+  string jobid = 1;
+  string details = 2;
 }
 
 // The request message.
 message ConnRequest {
-  string switch = 1;
+  string keyswitch = 1;
 }
 
 message ListRequest {
@@ -26,7 +26,7 @@ message ListRequest {
 }
 
 // The response message.
-message HelloReply {
+message ConnReply {
   string status = 1;
   string message = 2;
 }
