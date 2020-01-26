@@ -3,6 +3,7 @@ from peewee import chunked
 
 from app.extensions import pwdb
 from app.model import Article
+from app.utils import spider_local_tz
 
 
 class Saver:
@@ -20,7 +21,8 @@ class Saver:
                             .insert(**kwargs)
                             .on_conflict(
                                 conflict_target=[self._mod.title],
-                                update={self._mod.updated_at: pendulum.now()})
+                                update={self._mod.updated_at:
+                                            pendulum.now(spider_local_tz)})
                             .execute())
         except Exception:
             return -1
