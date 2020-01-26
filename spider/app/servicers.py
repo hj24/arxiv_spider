@@ -3,11 +3,14 @@ import spidermanager_pb2_grpc
 
 from sea.servicer import ServicerMeta
 
-# from datetime import datetime
-#
-# from app.extensions import tasker
-# from app.utils import random_date
-# from app.spider.main import Engine
+from datetime import datetime
+
+from gevent import monkey
+#monkey.patch_socket()
+
+from app.extensions import tasker
+from app.utils import random_date
+from app.spider.main import Engine
 
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
@@ -18,26 +21,36 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
     """
     def SpiderConn(self, request, context):
 
-        # def setup_spider():
-        #     _date = random_date()
-        #     _year = _date.year
-        #     _month = _date.month
-        #     _day = _date.day
-        #     _hour = _date.hour
-        #     _minutes = _date.minute
-        #     _engine = Engine()
-        #     print('setip spider &&&&&&&&&&&&&&&&&&&&&&&&')
-        #     tasker.add_job(job_id='spider', desc='spider task', func=_engine.loop,
-        #                    date=datetime(year=2020, month=1,
-        #                                  day=26, hour=17, minute=23),
-        #                    args=[])
+        def setup_spider():
+            _date = random_date()
+            _year = _date.year
+            _month = _date.month
+            _day = _date.day
+            _hour = _date.hour
+            _minutes = _date.minute
+            _engine = Engine()
+            print('setip spider &&&&&&&&&&&&&&&&&&&&&&&&')
+            tasker.add_job(job_id='spider', desc='spider task', func=_engine.loop,
+                           date=datetime(year=2020, month=1,
+                                         day=26, hour=23, minute=52),
+                           args=[])
+
+        def my_listener(event):
+            if event.exception:
+                print('The job crashed :(')
+            else:
+                print('The job worked :)')
 
         try:
             print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
-                # tasker.add_cron_job_per_week(job_id='setup', desc='setup a spider job',
-                #                              func=setup_spider, args=[], d_of_w='sun',
-                #                              hour=0, min=0)
+                tasker.add_cron_job_per_week(job_id='setup', desc='setup a spider job',
+                                             func=setup_spider, args=[], d_of_w='sun',
+                                             hour=23, min=51)
+                from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+                tasker.add_listener(my_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+                #tasker.start()
+                print(tasker.get_job(job_id='setup').next_run_time)
                 #Engine().loop()
                 print('service ******')
             elif request.keyswitch == 'off':
@@ -46,7 +59,8 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
                 pass
             else:
                 return spidermanager_pb2.ConnReply(status='unknow', message=request.keyswitch)
-        except Exception:
+        except Exception as e:
+            print(e)
             return spidermanager_pb2.ConnReply(status='failed', message=request.keyswitch)
         else:
             return spidermanager_pb2.ConnReply(status='success', message=request.keyswitch)

@@ -1,5 +1,8 @@
 from configs.default import *
 
+
+TIMEZONE = 'Asia/Shanghai'
+
 GRPC_LOG_LEVEL = 'INFO'
 DEBUG = True
 GRPC_PORT = 9001
@@ -10,7 +13,7 @@ REDIS_PORT = 6699
 REDIS_DB = 0
 
 # Apscheduler配置
-APS_SCHEDULER = 'gevent'
+APS_SCHEDULER = 'background'
 
 # # 异步任务
 # ASYNC_TASK_BROKER_URL = 'redis://redis:6699/0'

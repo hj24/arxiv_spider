@@ -1,6 +1,6 @@
 import gevent
 from gevent import monkey
-monkey.patch_all()
+monkey.patch_socket()
 
 from random import randint
 
@@ -81,6 +81,7 @@ class Engine:
     def loop(self):
         try:
             self.producer()
+            #sp = gevent.spawn(self.producer)
             pc = gevent.spawn(self.consumer)
             self.que.join()
         except Exception as e:
