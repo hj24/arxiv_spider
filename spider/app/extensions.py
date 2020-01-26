@@ -65,7 +65,8 @@ class TasksManager:
         """
         try:
             self._scheduler.add_job(func=func, trigger='date', id=job_id,
-                                    name=desc, args=args, run_date=date)
+                                    name=desc, args=args, run_date=date,
+                                    replace_existing=True)
         except Exception as e:
             raise e
         else:
@@ -83,6 +84,18 @@ class TasksManager:
                     break
         except Exception as e:
             raise e
+
+    def existed_job(self, job_id):
+        try:
+            for job in self._job_list:
+                if job['job_id'] == job_id:
+                    return True
+            return False
+        except Exception as e:
+            raise e
+
+    def get_jobs(self):
+        return self._job_list
 
 
 # 使用扩展
