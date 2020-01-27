@@ -14,4 +14,16 @@ if __name__ == '__main__':
 
     from app.spider.main import Engine
 
-    Engine().loop()
+    from app.extensions import tasker
+    from app.utils import spider_local_tz
+
+    def p():
+        print('*******')
+
+    import pendulum
+    from datetime import datetime
+
+    tasker.add_job(job_id='p', desc='ppp', func=p, args=[], date=datetime(year=2020, month=1, day=27, hour=17, minute=34))
+    tasker.start()
+    import time
+    time.sleep(600)

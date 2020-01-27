@@ -5,12 +5,13 @@ from sea.servicer import ServicerMeta
 
 from datetime import datetime
 
+import threading
 from gevent import monkey
-#monkey.patch_socket()
+monkey.patch_socket()
 
-from app.extensions import tasker
 from app.utils import random_date
 from app.spider.main import Engine
+from app.async_tasks import test
 
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
@@ -32,25 +33,22 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
             print('setip spider &&&&&&&&&&&&&&&&&&&&&&&&')
             tasker.add_job(job_id='spider', desc='spider task', func=_engine.loop,
                            date=datetime(year=2020, month=1,
-                                         day=26, hour=23, minute=52),
+                                         day=27, hour=17, minute=15),
                            args=[])
 
-        def my_listener(event):
-            if event.exception:
-                print('The job crashed :(')
-            else:
-                print('The job worked :)')
+        def my_listener():
+            print('in new thread')
+            tasker.add_cron_job_per_week(job_id='setup', desc='setup a spider job',
+                                         func=setup_spider, args=[], d_of_w='mon',
+                                         hour=17, min=14)
+            tasker.start()
 
         try:
             print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
-                tasker.add_cron_job_per_week(job_id='setup', desc='setup a spider job',
-                                             func=setup_spider, args=[], d_of_w='sun',
-                                             hour=23, min=51)
-                from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
-                tasker.add_listener(my_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
-                #tasker.start()
-                print(tasker.get_job(job_id='setup').next_run_time)
+
+                test.delay()
+
                 #Engine().loop()
                 print('service ******')
             elif request.keyswitch == 'off':

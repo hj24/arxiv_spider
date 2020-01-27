@@ -4,7 +4,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from peeweext.sea import Peeweext
-# from sea.contrib.extensions.celery import AsyncTask
+from sea.contrib.extensions.celery import AsyncTask
 
 from app.utils import spider_local_tz
 
@@ -50,8 +50,6 @@ class TasksManager:
         添加corn类型的定时任务
         """
         try:
-            print(job_id, func)
-            import pytz
             if args:
                 self._scheduler.add_job(func=func, trigger='cron', id=job_id,
                                         name=desc, args=args, day_of_week=d_of_w,
@@ -107,8 +105,8 @@ class TasksManager:
 
 # 使用扩展
 ## sea内置的celery异步任务扩展
-# async_task = AsyncTask()
-# bus = Bus()
+async_task = AsyncTask()
+#bus = Bus()
 
 ## peewee插件
 pwdb = Peeweext(ns='PW_')
@@ -117,4 +115,4 @@ pwdb = Peeweext(ns='PW_')
 spredis = Redis()
 
 ## 定时任务扩展
-tasker = TasksManager()
+#tasker = TasksManager()
