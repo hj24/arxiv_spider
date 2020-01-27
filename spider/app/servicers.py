@@ -21,34 +21,13 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
     定义规范参考Protobuf
     """
     def SpiderConn(self, request, context):
-
-        def setup_spider():
-            _date = random_date()
-            _year = _date.year
-            _month = _date.month
-            _day = _date.day
-            _hour = _date.hour
-            _minutes = _date.minute
-            _engine = Engine()
-            print('setip spider &&&&&&&&&&&&&&&&&&&&&&&&')
-            tasker.add_job(job_id='spider', desc='spider task', func=_engine.loop,
-                           date=datetime(year=2020, month=1,
-                                         day=27, hour=17, minute=15),
-                           args=[])
-
-        def my_listener():
-            print('in new thread')
-            tasker.add_cron_job_per_week(job_id='setup', desc='setup a spider job',
-                                         func=setup_spider, args=[], d_of_w='mon',
-                                         hour=17, min=14)
-            tasker.start()
-
         try:
             print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
 
-                test.delay()
-
+                r = test.delay(2, 4)
+                print(r.status)
+                print(r.result)
                 #Engine().loop()
                 print('service ******')
             elif request.keyswitch == 'off':

@@ -2,7 +2,7 @@ from sea import current_app
 from app.extensions import spredis
 from sea import create_app
 
-
+from sea.contrib.extensions.celery import cmd
 
 if __name__ == '__main__':
     import os
@@ -12,18 +12,21 @@ if __name__ == '__main__':
     root_path = os.path.abspath(os.path.dirname(__file__))
     create_app(root_path)
 
-    from app.spider.main import Engine
+    from app.async_tasks import test
 
-    from app.extensions import tasker
-    from app.utils import spider_local_tz
+    def add_t():
+        r = test.delay(4, 4)
+        print(r.status)
+        print(r.result)
 
-    def p():
-        print('*******')
-
-    import pendulum
-    from datetime import datetime
-
-    tasker.add_job(job_id='p', desc='ppp', func=p, args=[], date=datetime(year=2020, month=1, day=27, hour=17, minute=34))
-    tasker.start()
+    r = test.delay(6, 4)
     import time
-    time.sleep(600)
+    import threading
+    t = threading.Thread(target=add_t)
+    t.start()
+    time.sleep(5)
+
+    print(r.status)
+    print(r.result)
+    spredis.set('hj', '24')
+    print(spredis.get('hj'))
