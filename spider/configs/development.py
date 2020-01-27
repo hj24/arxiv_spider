@@ -13,10 +13,11 @@ REDIS_PORT = 6699
 REDIS_DB = 0
 
 # Apscheduler配置
-APS_SCHEDULER = 'blocking'
+#APS_SCHEDULER = 'blocking'
 
 # # 异步任务
-ASYNC_TASK_BROKER_URL = 'redis://redis:6699/0'
+ASYNC_TASK_BROKER_URL = 'redis://localhost:6699/1'
+ASYNC_TASK_RESULT_BACKEND = 'redis://localhost:6699/2'
 ASYNC_TASK_IMPORTS = ['app.async_tasks']
 
 # bus 消息
