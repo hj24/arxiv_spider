@@ -11,7 +11,8 @@ monkey.patch_socket()
 
 from app.utils import random_date
 from app.spider.main import Engine
-from app.async_tasks import test
+from app.async_tasks import contorl_test2
+from app.extensions import spredis
 
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
@@ -25,7 +26,7 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
             print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
 
-                r = test.delay(2, 4)
+                r = contorl_test2.delay()
                 print(r.status)
                 print(r.result)
                 #Engine().loop()
@@ -38,7 +39,7 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
                 return spidermanager_pb2.ConnReply(status='unknow', message=request.keyswitch)
         except Exception as e:
             print(e)
-            return spidermanager_pb2.ConnReply(status='failed', message=request.keyswitch)
+            return spidermanager_pb2.ConnReply(status='exception failed', message=request.keyswitch)
         else:
             return spidermanager_pb2.ConnReply(status='success', message=request.keyswitch)
 

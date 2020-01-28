@@ -1,5 +1,5 @@
 from configs.default import *
-
+from celery.schedules import crontab
 
 TIMEZONE = 'Asia/Shanghai'
 
@@ -19,6 +19,15 @@ REDIS_DB = 0
 ASYNC_TASK_BROKER_URL = 'redis://localhost:6699/1'
 ASYNC_TASK_RESULT_BACKEND = 'redis://localhost:6699/2'
 ASYNC_TASK_IMPORTS = ['app.async_tasks']
+ASYNC_TASK_TIMEZONE = TIMEZONE
+
+ASYNC_TASK_BEAT_SCHEDULE = {
+    'execute_per_week': {
+        'task': 'app.async_tasks.test2',
+        'schedule': crontab(),
+        'args': (1, 2, 3)
+    }
+}
 
 # bus 消息
 # BUS_BROKER_URL = 'redis://redis:6699/0'

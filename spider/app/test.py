@@ -14,6 +14,10 @@ if __name__ == '__main__':
 
     from app.async_tasks import test
 
+    from app.extensions import async_task
+
+    print(async_task.now())
+
     def add_t():
         r = test.delay(4, 4)
         print(r.status)
@@ -24,9 +28,13 @@ if __name__ == '__main__':
     import threading
     t = threading.Thread(target=add_t)
     t.start()
-    time.sleep(5)
+
 
     print(r.status)
     print(r.result)
+    #time.sleep(180)
     spredis.set('hj', '24')
     print(spredis.get('hj'))
+    print(spredis.get('sp'))
+
+
