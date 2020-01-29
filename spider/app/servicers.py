@@ -3,17 +3,6 @@ import spidermanager_pb2_grpc
 
 from sea.servicer import ServicerMeta
 
-from datetime import datetime
-
-import threading
-from gevent import monkey
-monkey.patch_socket()
-
-from app.utils import random_date
-from app.spider.main import Engine
-from app.async_tasks import contorl_test2
-from app.extensions import spredis
-
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
                             metaclass=ServicerMeta):
@@ -26,15 +15,13 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
             print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
 
-                r = contorl_test2.delay()
-                print(r.status)
-                print(r.result)
+                spredis.set('sp', 'start')
+
+
                 #Engine().loop()
                 print('service ******')
             elif request.keyswitch == 'off':
-                # if tasker.existed_job('spider'):
-                #     tasker.stop_job('spider')
-                pass
+                r = contorl_test2.delay()
             else:
                 return spidermanager_pb2.ConnReply(status='unknow', message=request.keyswitch)
         except Exception as e:
