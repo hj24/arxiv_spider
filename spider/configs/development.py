@@ -23,9 +23,9 @@ ASYNC_TASK_TIMEZONE = TIMEZONE
 
 ASYNC_TASK_BEAT_SCHEDULE = {
     'execute_per_week': {
-        'task': 'app.async_tasks.test2',
-        'schedule': crontab(),
-        'args': (1, 2, 3)
+        'task': 'app.async_tasks.run_spider',
+        'schedule': crontab(day_of_week=3, hour=20, minute=50),
+        #'args': (1, 2, 3)
     }
 }
 

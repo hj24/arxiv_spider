@@ -1,3 +1,5 @@
+import pytz
+
 import redis
 from apscheduler.schedulers.gevent import GeventScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -5,8 +7,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from peeweext.sea import Peeweext
 from sea.contrib.extensions.celery import AsyncTask
-
-from app.utils import spider_local_tz
 
 
 config2scheduler = {

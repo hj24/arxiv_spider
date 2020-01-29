@@ -1,22 +1,17 @@
-from app.extensions import async_task
-from app.extensions import spredis
+from app.extensions import async_task, spredis
+from app.spider.main import Engine
 
 
 @async_task.task
-def test(x, y):
-    return x+y
-
-@async_task.task(bind=True)
-def test2(self, x, y, z):
-    with open('a.text', 'w') as fw:
-        fw.write(str(x + y + z))
-    spredis.set('sp', self.request.id)
+def set_spider(signal):
+    spredis.set('sp', signal)
 
 @async_task.task
-def contorl_test2():
-    import time
-    time.sleep(180)
-    idx = spredis.get('sp')
-    from celery.app.control import Control
-    c = Control(async_task)
-    c.revoke(idx, terminate=True)
+def run_spider():
+    flag = spredis.get('sp').decode('utf-8')
+    if flag == 'run':
+        Engine().loop()
+    elif flag == 'stop':
+        pass
+    else:
+        pass

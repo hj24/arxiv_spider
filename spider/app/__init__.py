@@ -4,4 +4,6 @@ from sea.app import BaseApp
 class App(BaseApp):
 
     def ready(self):
-        print('sea start!')
+        from app.extensions import spredis
+        spredis.set('sp', 'run')
+        print('project start!')
