@@ -1,4 +1,4 @@
-import requests
+import requests_async as requests
 from requests.exceptions import ProxyError
 
 from app.model import Api
@@ -10,27 +10,32 @@ from app.settings import SpiderProxy
 class SpiderMan:
 
     def __init__(self, url_item):
-        self._sess = requests.session()
+        self._sess = requests.Session()
         self._url = url_item['url']
         self._subject = url_item['subject']
         self._headers = url_item['headers']
 
-    def download_page(self, prxoy, headers=None, timeout=60):
+    async def download_page(self, prxoy, headers=None, timeout=60):
         """
         有代理用代理，没代理用本地ip爬取,有请求头就用，没有就用url_item里的
 
         :param prxoy: 从make_proxies的结果中随机抽取一个传入
         :return: 状态, 爬取结果
         """
+        print('here')
         h = self._headers if not headers else headers
         try:
-            response = self._sess.get(self._url, headers=h,
-                                      proxies=prxoy, timeout=timeout)
-            response.encoding = 'utf-8'
+            async with self._sess as session:
+                response = await session.get(self._url, headers=h,
+                                             proxies=prxoy, timeout=timeout)
+                response.encoding = 'utf-8'
         except Exception as e:
             try:
-                response = self._sess.get(self._url, headers=h, timeout=timeout)
-                response.encoding = 'utf-8'
+                print(e)
+                async with self._sess as session:
+                    response = await session.get(self._url, headers=h,
+                                                 timeout=timeout)
+                    response.encoding = 'utf-8'
             except Exception as e:
                 print(e)
                 return False, None
@@ -48,20 +53,22 @@ class SpiderMan:
                 return False, None
 
     @staticmethod
-    def _try_get_page_nums(url, headers=None, proxy=None):
+    async def _try_get_page_nums(url, headers=None, proxy=None):
         """
         根据数据库中母url获取页面的总数
         总数一半在页面的最前面，所以截取获取的前10000个字符，提高正则匹配效率
         """
         try:
             if not proxy:
+                print('没有代理')
                 raise Exception('no proxy found')
-            resp = requests.get(url, headers=headers, timeout=10, proxies=proxy)
+            resp = await requests.get(url, headers=headers, timeout=180, proxies=proxy)
+            print(resp)
             result = PAGNUMPAT.search(resp.text[:10000])
             per, tot = result.groups()
         except ProxyError:
             try:
-                resp = requests.get(url, headers=headers, timeout=10)
+                resp = await requests.get(url, headers=headers, timeout=180)
                 result = PAGNUMPAT.search(resp.text[:10000])
                 per, tot = result.groups()
             except Exception:
@@ -69,7 +76,7 @@ class SpiderMan:
             else:
                 return per, tot
         except Exception as e:
-            print('&&&&&&&&', e)
+            print('&&&&&&&&', e.with_traceback())
             return 1, 1
         else:
             return per, tot
@@ -84,11 +91,12 @@ class SpiderMan:
         return urls
 
     @staticmethod
-    def generate_url(proxy):
+    async def generate_url(proxy):
         try:
+            print(proxy)
             generated = []
             for api in Api.select().where(Api.deleted == False):
-                per, tot = SpiderMan._try_get_page_nums(api.url, api.headers, proxy)
+                per, tot = await SpiderMan._try_get_page_nums(api.url, api.headers, proxy)
                 generated.extend(SpiderMan._gen_api(api.url, api.subject, int(per),
                                                     int(tot), headers=api.headers))
         except Exception:

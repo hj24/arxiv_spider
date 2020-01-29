@@ -1,10 +1,6 @@
-import gevent
-from gevent import monkey
-monkey.patch_socket()
-
+import asyncio
+from asyncio import Queue
 from random import randint
-
-from gevent.queue import JoinableQueue
 
 from app.spider.crawler import SpiderMan
 from app.spider.parser import PageParser
@@ -17,7 +13,7 @@ class Engine:
     爬虫主调度器, 生产者消费者模型
     """
     def __init__(self):
-        self.que = JoinableQueue()
+        self.que = Queue()
 
     @staticmethod
     def make_spider_config():
@@ -42,33 +38,39 @@ class Engine:
         idx = randint(0, len(item_list) - 1)
         return item_list[idx]
 
-    def producer(self):
+    async def producer(self):
         proxies = SpiderMan.make_porxies()
         _proxy = self._load_random_item(proxies)
+        print(proxies)
 
-        urls = SpiderMan.generate_url(_proxy)
-
+        urls = await SpiderMan.generate_url(_proxy)
+        print(urls)
         cfgs = Engine.make_spider_config()
         _cfgs = cfgs if cfgs else None
 
         for url in urls:
             if proxies:
                 _proxy = self._load_random_item(proxies)
+                print(_proxy)
                 if not _cfgs:
-                    status, item = SpiderMan(url).download_page(_proxy)
+                    status, item = await SpiderMan(url).download_page(_proxy)
                 else:
                     _cfg = self._load_random_item(_cfgs)
-                    status, item = SpiderMan(url).download_page(_proxy, headers=_cfg['headers'],
+                    status, item = await SpiderMan(url).download_page(_proxy, headers=_cfg['headers'],
                                                                 timeout=_cfg['timeout'])
-                    gevent.sleep(_cfg['sleep'])
+                    await asyncio.sleep(_cfg['sleep'])
+                print(status, item)
+                await self.que.put(item)
+        await self.que.put('end')
 
-                self.que.put(item)
-
-    def consumer(self):
+    async def consumer(self):
         # 消费者：从队列中取出item，是一个dict
         while True:
-            item = self.que.get()
             try:
+                item = await self.que.get()
+                if isinstance(item, str):
+                    if item == 'end':
+                        break
                 p = PageParser(item['content'], item['subject'])
                 for res in p.parser_page():
                     print('consumer: ', res)
@@ -78,14 +80,24 @@ class Engine:
             finally:
                 self.que.task_done()
 
+    async def main(self):
+        _producer = [self.producer()]
+        _consumer = [asyncio.ensure_future(self.consumer())]
+        tasks = _producer + _consumer
+
+        await asyncio.gather(*tasks, return_exceptions=True)
+        #await self.que.join()
+
+        for c in _consumer:
+            c.cancel()
+
     def loop(self):
         try:
-            self.producer()
-            #sp = gevent.spawn(self.producer)
-            pc = gevent.spawn(self.consumer)
-            self.que.join()
+            _loop = asyncio.get_event_loop()
+            _loop.run_until_complete(self.main())
+            _loop.close()
         except Exception as e:
-            print('******', e)
+            print(e)
             return False
         else:
             return True
