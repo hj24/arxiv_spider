@@ -14,16 +14,25 @@ class Saver:
         self._mod = Article
         self._db = pwdb
 
-    def save_one(self, **kwargs):
+    def save_one(self, dict_rows, **kwargs):
         try:
             with self._db.database.atomic():
-                ret = (self._mod
-                            .insert(**kwargs)
-                            .on_conflict(
-                                conflict_target=[self._mod.title],
-                                update={self._mod.updated_at:
-                                            pendulum.now(spider_local_tz)})
-                            .execute())
+                if not dict_rows:
+                    ret = (self._mod
+                                .insert(**kwargs)
+                                .on_conflict(
+                                    conflict_target=[self._mod.title],
+                                    update={self._mod.updated_at:
+                                                pendulum.now(spider_local_tz)})
+                                .execute())
+                else:
+                    ret = (self._mod
+                           .insert(**dict_rows)
+                           .on_conflict(
+                        conflict_target=[self._mod.title],
+                        update={self._mod.updated_at:
+                                    pendulum.now(spider_local_tz)})
+                           .execute())
         except Exception:
             return -1
         else:
