@@ -63,7 +63,7 @@ class Engine:
                 await self.que.put(item)
         await self.que.put('end')
 
-    async def consumer(self):
+    async def consumer(self, loop):
         # 消费者：从队列中取出item，是一个dict
         while True:
             try:
@@ -74,15 +74,17 @@ class Engine:
                 p = PageParser(item['content'], item['subject'])
                 for res in p.parser_page():
                     print('consumer: ', res)
-                    Saver().save_one(**res)
+                    _saver = Saver()
+                    await loop.run_in_executor(None, _saver.save_one, res)
+                    #Saver().save_one(**res)
             except Exception as e:
                 print('consumer', e)
             finally:
                 self.que.task_done()
 
-    async def main(self):
+    async def main(self, loop):
         _producer = [self.producer()]
-        _consumer = [asyncio.ensure_future(self.consumer())]
+        _consumer = [asyncio.ensure_future(self.consumer(loop))]
         tasks = _producer + _consumer
 
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -94,7 +96,7 @@ class Engine:
     def loop(self):
         try:
             _loop = asyncio.get_event_loop()
-            _loop.run_until_complete(self.main())
+            _loop.run_until_complete(self.main(_loop))
             _loop.close()
         except Exception as e:
             print(e)
