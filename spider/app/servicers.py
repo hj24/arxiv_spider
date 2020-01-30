@@ -14,9 +14,9 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
     def SpiderConn(self, request, context):
         try:
             if request.keyswitch == 'on':
-                r = set_spider.delay('on')
+                r = set_spider.delay('run')
             elif request.keyswitch == 'off':
-                r = set_spider.delay('off')
+                r = set_spider.delay('stop')
             else:
                 return spidermanager_pb2.ConnReply(status='unknow', message=request.keyswitch)
             _status = str(r.status)

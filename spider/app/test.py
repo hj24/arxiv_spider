@@ -10,7 +10,7 @@ if __name__ == '__main__':
     root_path = os.path.abspath(os.path.dirname(__file__))
     create_app(root_path)
     from app.spider.main import Engine
-    Engine().loop()
+    #Engine().loop()
     from app.extensions import async_task
 
     print('celery time: ', async_task.now())
