@@ -2,6 +2,7 @@ import spidermanager_pb2
 import spidermanager_pb2_grpc
 
 from sea.servicer import ServicerMeta
+from app.async_tasks import set_spider
 
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
@@ -12,23 +13,18 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
     """
     def SpiderConn(self, request, context):
         try:
-            print('service ******' + request.keyswitch)
             if request.keyswitch == 'on':
-
-                spredis.set('sp', 'start')
-
-
-                #Engine().loop()
-                print('service ******')
+                r = set_spider.delay('on')
             elif request.keyswitch == 'off':
-                r = contorl_test2.delay()
+                r = set_spider.delay('off')
             else:
                 return spidermanager_pb2.ConnReply(status='unknow', message=request.keyswitch)
+            _status = str(r.status)
         except Exception as e:
             print(e)
-            return spidermanager_pb2.ConnReply(status='exception failed', message=request.keyswitch)
+            return spidermanager_pb2.ConnReply(status='failed', message=request.keyswitch)
         else:
-            return spidermanager_pb2.ConnReply(status='success', message=request.keyswitch)
+            return spidermanager_pb2.ConnReply(status=_status, message=request.keyswitch)
 
     def TasksList(self, request, context):
         # try:
