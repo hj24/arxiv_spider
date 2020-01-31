@@ -39,19 +39,20 @@ class Engine:
         return item_list[idx]
 
     async def producer(self):
+        print('start producer')
         proxies = SpiderMan.make_porxies()
         _proxy = self._load_random_item(proxies)
-        print(proxies)
+        print('proxies loaded: \n',proxies)
 
         urls = await SpiderMan.generate_url(_proxy)
-        print(urls)
+        print('target urls loaded: \n', urls)
         cfgs = Engine.make_spider_config()
         _cfgs = cfgs if cfgs else None
 
         for url in urls:
+            print('start to fetch the page: ', url)
             if proxies:
                 _proxy = self._load_random_item(proxies)
-                print(_proxy)
                 if not _cfgs:
                     status, item = await SpiderMan(url).download_page(_proxy)
                 else:
@@ -59,7 +60,6 @@ class Engine:
                     status, item = await SpiderMan(url).download_page(_proxy, headers=_cfg['headers'],
                                                                 timeout=_cfg['timeout'])
                     await asyncio.sleep(_cfg['sleep'])
-                print(status, item)
                 await self.que.put(item)
         await self.que.put('end')
 
@@ -68,9 +68,12 @@ class Engine:
         while True:
             try:
                 item = await self.que.get()
+                print('consumer get: ', item)
                 if isinstance(item, str):
                     if item == 'end':
                         break
+                if not item:
+                    continue
                 p = PageParser(item['content'], item['subject'])
                 for res in p.parser_page():
                     print('consumer: ', res)

@@ -22,7 +22,6 @@ class SpiderMan:
         :param prxoy: 从make_proxies的结果中随机抽取一个传入
         :return: 状态, 爬取结果
         """
-        print('here')
         h = self._headers if not headers else headers
         try:
             async with self._sess as session:
@@ -60,23 +59,23 @@ class SpiderMan:
         """
         try:
             if not proxy:
-                print('没有代理')
                 raise Exception('no proxy found')
             resp = await requests.get(url, headers=headers, timeout=180, proxies=proxy)
-            print(resp)
             result = PAGNUMPAT.search(resp.text[:10000])
             per, tot = result.groups()
-        except ProxyError:
+        except ProxyError as pe:
             try:
+                print('proxy not found or porxy failed: ', pe)
                 resp = await requests.get(url, headers=headers, timeout=180)
                 result = PAGNUMPAT.search(resp.text[:10000])
                 per, tot = result.groups()
-            except Exception:
+            except Exception as e:
+                print('try to get page nums failed, return default nums: ', e)
                 return 1, 1
             else:
                 return per, tot
         except Exception as e:
-            print('&&&&&&&&', e.with_traceback())
+            print(e)
             return 1, 1
         else:
             return per, tot
@@ -93,13 +92,14 @@ class SpiderMan:
     @staticmethod
     async def generate_url(proxy):
         try:
-            print(proxy)
             generated = []
             for api in Api.select().where(Api.deleted == False):
+                print('api loaded: \n', api.url)
                 per, tot = await SpiderMan._try_get_page_nums(api.url, api.headers, proxy)
                 generated.extend(SpiderMan._gen_api(api.url, api.subject, int(per),
                                                     int(tot), headers=api.headers))
-        except Exception:
+        except Exception as e:
+            print('generate-url: ', e)
             return []
         else:
             return generated
