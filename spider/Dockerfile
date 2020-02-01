@@ -14,6 +14,9 @@ WORKDIR /spider
 # 这里设置为生成环境的配置
 ENV SEA_ENV production
 
+# 将gRPC使用的9001端口暴露出去
+EXPOSE 9001
+
 # build镜像时运行的命令，安装vim，以及项目依赖
 RUN apt-get update && apt-get install vim -y \
     && apt-get install lsof -y && apt-get clean \
