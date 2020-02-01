@@ -23,4 +23,4 @@ RUN apt-get update && apt-get install vim -y \
     && pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # docker run构建容器时会运行的命令，用于启动服务
-CMD ["/bin/sh", "start_sea.sh"]
+CMD ["/bin/sh", "/spider/start_sea.sh"]
