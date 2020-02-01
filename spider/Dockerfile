@@ -15,7 +15,8 @@ WORKDIR /spider
 ENV SEA_ENV production
 
 # build镜像时运行的命令，安装vim，以及项目依赖
-RUN apt-get update && apt-get install vim -y && apt-get clean \
+RUN apt-get update && apt-get install vim -y \
+    && apt-get install lsof -y && apt-get clean \
     && pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # docker run构建容器时会运行的命令，用于启动服务
