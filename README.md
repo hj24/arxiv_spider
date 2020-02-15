@@ -12,3 +12,4 @@
 2. cd到`./spider`目录下 (该目录放置了Dockerfile)
 3. 配置好该爬虫服务所需的redis, postgres
 ### step 1 - 构建服务镜像
+1. 运行`docker build`

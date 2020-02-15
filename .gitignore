@@ -1,0 +1,3 @@
+# 忽略idea和vscode的配置
+**/.idea/
+**/.vscode/
