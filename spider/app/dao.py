@@ -1,3 +1,5 @@
+import pickle
+
 from app.model import SpConfiguration as spc
 from app.model import ProxyConfiguration as proxyc
 from app.extensions import spredis
@@ -61,7 +63,7 @@ class RedisDao:
         """
         更新计数器
         """
-        hash_counter = {"tot": tot, "failed": cnt}
+        hash_counter = {"tot": tot, "success": cnt}
         return spredis.hmset("counter", hash_counter)
 
     def get_counter(self):
@@ -73,3 +75,39 @@ class RedisDao:
         for k, v in byte_val.items():
             res[k.decode("utf-8")] = int(v.decode("utf-8"))
         return res
+
+    def update_articles(self, articles):
+        """
+        取出序列化的列表 -> [{"name": ..., "tag": ...}, {...}]
+        反序列化后去重，重新序列化之后存储
+        """
+        # 如果redis里不存在这个键，则创建
+        if not spredis.exists("articles"):
+            ans = []
+            for i in articles:
+                ans.append({"name": i, "tag": True})
+            spredis.setnx("articles", pickle.dumps(ans))
+        else:
+            # 取出的列表里存dict
+            saved = spredis.get("articles")
+            decoded_saved = pickle.loads(saved)
+            # 旧的文章tag打成False
+            saved_names = []
+            for old in decoded_saved:
+                saved_names.append(old["name"])
+                old["tag"] = False 
+            # 求出更新的文章
+            to_update = set(articles) - set(saved_names)
+            new = []
+            for i in to_update:
+                new.append({"name": i, "tag": True})
+            decoded_saved.extend(new)
+            # 旧的键删除，重新存
+            spredis.delete("articles")
+            spredis.setnx("articles", pickle.dumps(decoded_saved))   
+
+    def get_newest_articles(self):
+        saved = spredis.get("articles")
+        decoded = pickle.loads(saved)
+        newest = [a["name"] for a in decoded if a["tag"]]
+        return newest

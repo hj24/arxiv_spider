@@ -3,6 +3,7 @@ import spidermanager_pb2_grpc
 
 from sea.servicer import ServicerMeta
 from app.async_tasks import set_spider
+from app.dao import RedisDao
 
 
 class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
@@ -26,23 +27,23 @@ class SpiderManagerServicer(spidermanager_pb2_grpc.SpiderServicer,
         else:
             return spidermanager_pb2.ConnReply(status=_status, message=request.keyswitch)
 
-    def TasksList(self, request, context):
-        # try:
-        #     replay_body = spidermanager_pb2.ListReply()
-        #     if request.query == 'lists':
-        #         job_list = tasker.get_jobs()
-        #         for job in job_list:
-        #             task = replay_body.JobList.add()
-        #             task.jobid = job['job_id']
-        #             task.detail = job['details']
-        #         replay_body.status = 'success'
-        #     else:
-        #         raise Exception('unkonw args')
-        # except Exception:
-        #     _replay_body = spidermanager_pb2.ListReply()
-        #     _replay_body.status = 'failed'
-        #     _replay_body.JobList.add()
-        #     return _replay_body
-        # else:
-        #     return replay_body
-        pass
+    def Report(self, request, context):
+        try:
+            _dao = RedisDao()
+            counter = _dao.get_counter()
+            val = [str(v) for v in counter.values()]
+            str_cnt = '-'.join(val)
+            replay_body = spidermanager_pb2.ReportReply()
+            replay_body.status = str_cnt
+            if request.query == 'lists':
+                articles = _dao.get_newest_articles()
+                for a in articles:
+                    replay_body.detail.append(a)
+            else:
+                raise Exception('unkonw args')
+        except Exception:
+            _replay_body = spidermanager_pb2.ReportReply()
+            _replay_body.status = 'failed'
+            return _replay_body
+        else:
+            return replay_body

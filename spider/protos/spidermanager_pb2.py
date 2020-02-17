@@ -19,48 +19,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='spidermanager.proto',
   package='spider',
   syntax='proto3',
-  serialized_pb=_b('\n\x13spidermanager.proto\x12\x06spider\")\n\x07JobList\x12\r\n\x05jobid\x18\x01 \x01(\t\x12\x0f\n\x07\x64\x65tails\x18\x02 \x01(\t\" \n\x0b\x43onnRequest\x12\x11\n\tkeyswitch\x18\x01 \x01(\t\"\x1c\n\x0bListRequest\x12\r\n\x05query\x18\x01 \x01(\t\",\n\tConnReply\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"8\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x1b\n\x02jl\x18\x02 \x03(\x0b\x32\x0f.spider.JobList2w\n\x06Spider\x12\x36\n\nSpiderConn\x12\x13.spider.ConnRequest\x1a\x11.spider.ConnReply\"\x00\x12\x35\n\tTasksList\x12\x13.spider.ListRequest\x1a\x11.spider.ListReply\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x13spidermanager.proto\x12\x06spider\" \n\x0b\x43onnRequest\x12\x11\n\tkeyswitch\x18\x01 \x01(\t\"\x1e\n\rReportRequest\x12\r\n\x05query\x18\x01 \x01(\t\",\n\tConnReply\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\"-\n\x0bReportReply\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0e\n\x06\x64\x65tail\x18\x02 \x03(\t2x\n\x06Spider\x12\x36\n\nSpiderConn\x12\x13.spider.ConnRequest\x1a\x11.spider.ConnReply\"\x00\x12\x36\n\x06Report\x12\x15.spider.ReportRequest\x1a\x13.spider.ReportReply\"\x00\x62\x06proto3')
 )
 
 
-
-
-_JOBLIST = _descriptor.Descriptor(
-  name='JobList',
-  full_name='spider.JobList',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='jobid', full_name='spider.JobList.jobid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='details', full_name='spider.JobList.details', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=31,
-  serialized_end=72,
-)
 
 
 _CONNREQUEST = _descriptor.Descriptor(
@@ -89,20 +51,20 @@ _CONNREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=74,
-  serialized_end=106,
+  serialized_start=31,
+  serialized_end=63,
 )
 
 
-_LISTREQUEST = _descriptor.Descriptor(
-  name='ListRequest',
-  full_name='spider.ListRequest',
+_REPORTREQUEST = _descriptor.Descriptor(
+  name='ReportRequest',
+  full_name='spider.ReportRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='query', full_name='spider.ListRequest.query', index=0,
+      name='query', full_name='spider.ReportRequest.query', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -120,8 +82,8 @@ _LISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=108,
-  serialized_end=136,
+  serialized_start=65,
+  serialized_end=95,
 )
 
 
@@ -158,28 +120,28 @@ _CONNREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=138,
-  serialized_end=182,
+  serialized_start=97,
+  serialized_end=141,
 )
 
 
-_LISTREPLY = _descriptor.Descriptor(
-  name='ListReply',
-  full_name='spider.ListReply',
+_REPORTREPLY = _descriptor.Descriptor(
+  name='ReportReply',
+  full_name='spider.ReportReply',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='spider.ListReply.status', index=0,
+      name='status', full_name='spider.ReportReply.status', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='jl', full_name='spider.ListReply.jl', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      name='detail', full_name='spider.ReportReply.detail', index=1,
+      number=2, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -196,24 +158,15 @@ _LISTREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=184,
-  serialized_end=240,
+  serialized_start=143,
+  serialized_end=188,
 )
 
-_LISTREPLY.fields_by_name['jl'].message_type = _JOBLIST
-DESCRIPTOR.message_types_by_name['JobList'] = _JOBLIST
 DESCRIPTOR.message_types_by_name['ConnRequest'] = _CONNREQUEST
-DESCRIPTOR.message_types_by_name['ListRequest'] = _LISTREQUEST
+DESCRIPTOR.message_types_by_name['ReportRequest'] = _REPORTREQUEST
 DESCRIPTOR.message_types_by_name['ConnReply'] = _CONNREPLY
-DESCRIPTOR.message_types_by_name['ListReply'] = _LISTREPLY
+DESCRIPTOR.message_types_by_name['ReportReply'] = _REPORTREPLY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-JobList = _reflection.GeneratedProtocolMessageType('JobList', (_message.Message,), dict(
-  DESCRIPTOR = _JOBLIST,
-  __module__ = 'spidermanager_pb2'
-  # @@protoc_insertion_point(class_scope:spider.JobList)
-  ))
-_sym_db.RegisterMessage(JobList)
 
 ConnRequest = _reflection.GeneratedProtocolMessageType('ConnRequest', (_message.Message,), dict(
   DESCRIPTOR = _CONNREQUEST,
@@ -222,12 +175,12 @@ ConnRequest = _reflection.GeneratedProtocolMessageType('ConnRequest', (_message.
   ))
 _sym_db.RegisterMessage(ConnRequest)
 
-ListRequest = _reflection.GeneratedProtocolMessageType('ListRequest', (_message.Message,), dict(
-  DESCRIPTOR = _LISTREQUEST,
+ReportRequest = _reflection.GeneratedProtocolMessageType('ReportRequest', (_message.Message,), dict(
+  DESCRIPTOR = _REPORTREQUEST,
   __module__ = 'spidermanager_pb2'
-  # @@protoc_insertion_point(class_scope:spider.ListRequest)
+  # @@protoc_insertion_point(class_scope:spider.ReportRequest)
   ))
-_sym_db.RegisterMessage(ListRequest)
+_sym_db.RegisterMessage(ReportRequest)
 
 ConnReply = _reflection.GeneratedProtocolMessageType('ConnReply', (_message.Message,), dict(
   DESCRIPTOR = _CONNREPLY,
@@ -236,12 +189,12 @@ ConnReply = _reflection.GeneratedProtocolMessageType('ConnReply', (_message.Mess
   ))
 _sym_db.RegisterMessage(ConnReply)
 
-ListReply = _reflection.GeneratedProtocolMessageType('ListReply', (_message.Message,), dict(
-  DESCRIPTOR = _LISTREPLY,
+ReportReply = _reflection.GeneratedProtocolMessageType('ReportReply', (_message.Message,), dict(
+  DESCRIPTOR = _REPORTREPLY,
   __module__ = 'spidermanager_pb2'
-  # @@protoc_insertion_point(class_scope:spider.ListReply)
+  # @@protoc_insertion_point(class_scope:spider.ReportReply)
   ))
-_sym_db.RegisterMessage(ListReply)
+_sym_db.RegisterMessage(ReportReply)
 
 
 
@@ -251,8 +204,8 @@ _SPIDER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=242,
-  serialized_end=361,
+  serialized_start=190,
+  serialized_end=310,
   methods=[
   _descriptor.MethodDescriptor(
     name='SpiderConn',
@@ -264,12 +217,12 @@ _SPIDER = _descriptor.ServiceDescriptor(
     options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='TasksList',
-    full_name='spider.Spider.TasksList',
+    name='Report',
+    full_name='spider.Spider.Report',
     index=1,
     containing_service=None,
-    input_type=_LISTREQUEST,
-    output_type=_LISTREPLY,
+    input_type=_REPORTREQUEST,
+    output_type=_REPORTREPLY,
     options=None,
   ),
 ])

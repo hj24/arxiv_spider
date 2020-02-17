@@ -7,13 +7,7 @@ service Spider {
   // Control the start and stop of the spider
   rpc SpiderConn (ConnRequest) returns (ConnReply) {}
   // Show apscheduler jobs and control them
-  rpc TasksList (ListRequest) returns (ListReply) {}
-}
-
-// complex list message
-message JobList {
-  string jobid = 1;
-  string details = 2;
+  rpc Report (ReportRequest) returns (ReportReply) {}
 }
 
 // The request message.
@@ -21,7 +15,7 @@ message ConnRequest {
   string keyswitch = 1;
 }
 
-message ListRequest {
+message ReportRequest {
   string query = 1;
 }
 
@@ -31,7 +25,7 @@ message ConnReply {
   string message = 2;
 }
 
-message ListReply {
+message ReportReply {
   string status = 1;
-  repeated JobList jl = 2;
+  repeated string detail = 2;
 }

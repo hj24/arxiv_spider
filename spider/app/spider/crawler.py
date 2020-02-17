@@ -1,10 +1,11 @@
+from collections import defaultdict
+
 import requests_async as requests
 from requests.exceptions import ProxyError
 
 from app.model import Api
-
 from app.spider.utils import PAGNUMPAT
-from app.settings import SpiderProxy
+from app.dao import SpiderProxy
 
 
 class SpiderMan:
@@ -94,7 +95,7 @@ class SpiderMan:
         try:
             generated = []
             for api in Api.select().where(Api.deleted == False):
-                print('api loaded: \n', api.url)
+                print('api loaded: ', api.url)
                 per, tot = await SpiderMan._try_get_page_nums(api.url, api.headers, proxy)
                 generated.extend(SpiderMan._gen_api(api.url, api.subject, int(per),
                                                     int(tot), headers=api.headers))
@@ -103,6 +104,25 @@ class SpiderMan:
             return []
         else:
             return generated
+
+    @staticmethod
+    def dispatch_url(urls):
+        """
+        进一步处理generate url产生的url，根据subject分类
+        返回元组
+        """
+        try:
+            ans = []
+            dispatch = defaultdict(list)
+            for url in urls:
+                dispatch[url['subject']].append(url)
+            for _, v in dispatch.items():
+                ans.append(v)
+        except Exception as e:
+            print(e)
+            return []
+        else:
+            return ans
 
     @staticmethod
     def make_porxies():

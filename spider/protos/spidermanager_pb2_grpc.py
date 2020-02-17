@@ -19,10 +19,10 @@ class SpiderStub(object):
         request_serializer=spidermanager__pb2.ConnRequest.SerializeToString,
         response_deserializer=spidermanager__pb2.ConnReply.FromString,
         )
-    self.TasksList = channel.unary_unary(
-        '/spider.Spider/TasksList',
-        request_serializer=spidermanager__pb2.ListRequest.SerializeToString,
-        response_deserializer=spidermanager__pb2.ListReply.FromString,
+    self.Report = channel.unary_unary(
+        '/spider.Spider/Report',
+        request_serializer=spidermanager__pb2.ReportRequest.SerializeToString,
+        response_deserializer=spidermanager__pb2.ReportReply.FromString,
         )
 
 
@@ -37,7 +37,7 @@ class SpiderServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def TasksList(self, request, context):
+  def Report(self, request, context):
     """Show apscheduler jobs and control them
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -52,10 +52,10 @@ def add_SpiderServicer_to_server(servicer, server):
           request_deserializer=spidermanager__pb2.ConnRequest.FromString,
           response_serializer=spidermanager__pb2.ConnReply.SerializeToString,
       ),
-      'TasksList': grpc.unary_unary_rpc_method_handler(
-          servicer.TasksList,
-          request_deserializer=spidermanager__pb2.ListRequest.FromString,
-          response_serializer=spidermanager__pb2.ListReply.SerializeToString,
+      'Report': grpc.unary_unary_rpc_method_handler(
+          servicer.Report,
+          request_deserializer=spidermanager__pb2.ReportRequest.FromString,
+          response_serializer=spidermanager__pb2.ReportReply.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
