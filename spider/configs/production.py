@@ -31,7 +31,13 @@ ASYNC_TASK_TIMEZONE = TIMEZONE
 ASYNC_TASK_BEAT_SCHEDULE = {
     'execute_per_week': {
         'task': 'app.async_tasks.run_spider',
-        'schedule': crontab(day_of_week=0, hour=7, minute=30),
+        'schedule': crontab(day_of_week=5, hour=14, minute=10),
         #'args': (1, 2, 3)
     }
 }
+
+# consul 配置
+CONSUL_SERVER_NAME = 'spider'
+CONSUL_SERVER_HOST = '116.62.125.253'
+CONSUL_REGISTER_IP = '116.62.125.253'
+CONSUL_REGISTER_PORT = GRPC_PORT

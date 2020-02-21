@@ -108,6 +108,9 @@ class RedisDao:
 
     def get_newest_articles(self):
         saved = spredis.get("articles")
-        decoded = pickle.loads(saved)
-        newest = [a["name"] for a in decoded if a["tag"]]
+        if saved:
+            decoded = pickle.loads(saved)
+            newest = [a["name"] for a in decoded if a["tag"]]
+        else:
+            newest = []
         return newest

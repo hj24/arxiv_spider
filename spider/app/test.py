@@ -24,6 +24,9 @@ if __name__ == '__main__':
 
     spredis.delete("articles")
     spredis.delete("counter")
+    from sea import current_app
+    c = current_app.config.get_namespace("CONSUL_")
+    print(c)
     
     
     
