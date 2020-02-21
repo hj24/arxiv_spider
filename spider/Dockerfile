@@ -2,7 +2,7 @@
 FROM python:3.6.3
 
 # 维护者
-MAINTAINER mambahj24@gmail.com
+LABEL maintainer="mambahj24@gmail.com"
 
 # 将项目文件添加到镜像内的spider文件夹
 ADD . /spider
