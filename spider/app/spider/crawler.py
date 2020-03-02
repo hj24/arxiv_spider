@@ -27,7 +27,7 @@ class SpiderMan:
         try:
             async with self._sess as session:
                 response = await session.get(self._url, headers=h,
-                                             proxies=prxoy, timeout=timeout)
+                                            proxies=prxoy, timeout=timeout)
                 response.encoding = 'utf-8'
         except Exception as e:
             try:

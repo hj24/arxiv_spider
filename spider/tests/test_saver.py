@@ -26,8 +26,8 @@ class TestSaver:
             'subject': 'forestry'
         }
 
-        ret = Saver().save_one(**parsed)
-        ret2 = Saver().save_one(**parsed)
+        ret = Saver().save_one(parsed)
+        ret2 = Saver().save_one(parsed)
 
         assert type(ret) == int
         assert ret == ret2
